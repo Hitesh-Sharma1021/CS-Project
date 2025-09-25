@@ -23,7 +23,10 @@ def executer(command,inp):
     for x in mycursor:
         list1.append(x)
     return list1 
-    
+
+def tablecreator():
+    pass
+
 def searchbot():
     if isconnected():
         print("The tables in our database are as follows : ")
@@ -38,7 +41,6 @@ def searchbot():
         fld=input("Enter the field you want to search : ")
         data=input(f"Enter the {fld} of your search item : ")
         executer(f"select * from {tbl} where {fld}={data}",True)
-
 
     else:
         print("The Database is not connected !!")
