@@ -35,6 +35,12 @@ def inputchart():
     else:
         print("Invalid Input !!")
 
+def feedchart():
+    a=executer(f"describe {tbl}",False)
+    for i in range(0,len(a)):
+        print(a[i][0])
+    pass
+
 def executer(command,inp):
     list1=[]
     mycursor=mycon.cursor()
@@ -46,6 +52,16 @@ def executer(command,inp):
         list1.append(x)
     return list1 
 
+def feedbot():
+    print("The tables in our database are as follows : ")
+    executer("Show tables",True)
+    tbl=input("Enter the name of the table you want to feed data: ")
+    bdr()
+    ans="y"
+    feed=f"insert into {tbl} values"
+    while ans[0].upper()=="Y":
+        ans=input("Do you want to continue?")
+
 def tablecreator():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -53,7 +69,7 @@ def tablecreator():
     bdr()
     ans="y"
     pricount=0
-
+    iskey=" "
     data=f"create table {tbl} ("
     while ans[0].upper()=="Y":
         fldnm=input("Enter the field name : ")
@@ -63,10 +79,16 @@ def tablecreator():
             if prikey[0].upper()=="Y":
                 iskey="Primary key"
                 pricount+=1
-        unikey=input("Do you want to make it unique key? : ")
-        if unikey[0].upper()=="Y":
-            iskey="Unique"      
-        iskey=" "
+            else:
+                unikey=input("Do you want to make it unique key? : ")
+                if unikey[0].upper()=="Y":
+                    iskey="Unique"      
+        else:
+            unikey=input("Do you want to make it unique key? : ")
+            if unikey[0].upper()=="Y":
+                iskey="Unique"      
+            else:
+                iskey=" "
         info=f"{fldnm}  {fldtyp}    {iskey}"
         data+=info
         ans=input("Do you want to continue? : ")
@@ -98,4 +120,5 @@ def searchbot():
         print("The Database is not connected !!")
 
 # searchbot()
-tablecreator()
+# tablecreator()
+feedchart()
