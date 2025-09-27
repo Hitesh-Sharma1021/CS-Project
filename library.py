@@ -33,13 +33,7 @@ def inputchart():
         fldtyp=f"float({ln},{dp})"
         return fldtyp
     else:
-        print("Invalid Input !!")
-
-def feedchart():
-    a=executer(f"describe {tbl}",False)
-    for i in range(0,len(a)):
-        print(a[i][0])
-    pass
+        print("Invalid Input !!")    
 
 def executer(command,inp):
     list1=[]
@@ -58,9 +52,22 @@ def feedbot():
     tbl=input("Enter the name of the table you want to feed data: ")
     bdr()
     ans="y"
-    feed=f"insert into {tbl} values"
+    feed=f"insert into {tbl} values("
+    fldlist=[]
+    a=executer(f"describe {tbl}",False)
+    for i in range(0,len(a)):
+        fldlist.append(a[i][0])
+        datalist=[]
     while ans[0].upper()=="Y":
+        for fldnm in fldlist:
+            data=input(f"Enter the {fldnm} : ")
+            feed+=data+","
+        feed.rstrip(",")
+        feed+=")"
         ans=input("Do you want to continue?")
+        # feed+=data      
+    print(feed)
+    # executer(feed,False)
 
 def tablecreator():
     print("The tables in our database are as follows : ")
@@ -121,4 +128,4 @@ def searchbot():
 
 # searchbot()
 # tablecreator()
-feedchart()
+feedbot()
