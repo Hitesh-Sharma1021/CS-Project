@@ -52,22 +52,23 @@ def feedbot():
     tbl=input("Enter the name of the table you want to feed data: ")
     bdr()
     ans="y"
-    feed=f"insert into {tbl} values("
+    feed=f'insert into {tbl} values('
     fldlist=[]
     a=executer(f"describe {tbl}",False)
+    print(a)
     for i in range(0,len(a)):
         fldlist.append(a[i][0])
-        datalist=[]
+    print(fldlist)
     while ans[0].upper()=="Y":
         for fldnm in fldlist:
             data=input(f"Enter the {fldnm} : ")
-            feed+=data+","
-        feed.rstrip(",")
-        feed+=")"
-        ans=input("Do you want to continue?")
-        # feed+=data      
+            feed+=data+','
+        feed=feed.rstrip(',')
+        feed+=')'
+        ans=input("Do you want to continue?")    
     print(feed)
-    # executer(feed,False)
+    executer(feed,False)
+    mycon.commit()  
 
 def tablecreator():
     print("The tables in our database are as follows : ")
