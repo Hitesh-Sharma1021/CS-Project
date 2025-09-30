@@ -67,7 +67,47 @@ def feedbot():
         print(feed)
         executer(feed,False)
         mycon.commit()  
-
+def updatebot():
+    print("The tables in our database are as follows : ")
+    executer("Show tables",True)
+    tbl=input("Enter the name of the table you want to update data: ")
+    bdr()
+    ans="y"
+    fldlist=[]
+    a=executer(f"describe {tbl}",False)
+    for i in range(0,len(a)):
+        fldlist.append(a[i][0])
+    while ans[0].upper()=="Y":
+        upd=f'update {tbl} set '
+        for fldnm in fldlist:
+            data=input(f"Enter the {fldnm} : ")
+            fdata=fldnm+'='+data
+            upd+=fdata+' ,'
+        upd=upd.rstrip(',')
+        print("You want to update the data where ... ")
+        cond_ans="y"
+        upd+='where '
+        while cond_ans[0].upper()=="Y":
+            for i in range(0,len(a)):
+                print(a[i][0])
+            fld=input("Enter the field you want to restrict (set condition) : ")
+            fldval=input(f"Enter the {fld} of your row : ")
+            upd+=f'{fld}={fldval} '
+            cond_ans=input("Do you want to add condition? : ")
+            if cond_ans[0].upper()=="Y":
+                for i in range(0,len(a)):
+                    print(a[i][0])
+                ask=input("Is this condition 'OR'(1) or 'AND'(2) : ")
+                if ask=="1":
+                    upd+=' or '
+                elif ask=="2":
+                    upd+=' and '
+                else:
+                    print("Wrong input!!")
+        ans=input("Do you want to continue?")    
+        print(upd)
+        executer(upd,False)
+        mycon.commit()  
 def tablecreator():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -127,4 +167,5 @@ def searchbot():
 
 # searchbot()
 # tablecreator()
-feedbot()
+# feedbot()
+updatebot()
