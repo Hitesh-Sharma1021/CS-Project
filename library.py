@@ -13,6 +13,7 @@ def isconnected():
         return True
     else:
         return False
+
 def inputchart():
     print("Field types Chart:\n1. For 'integer' enter 1\n2. For 'text' enter 2\n3. For 'date' enter 3\n4. For 'decimal values' enter 4")
     opt=int(input("Enter the option : "))
@@ -67,6 +68,165 @@ def feedbot():
         print(feed)
         executer(feed,False)
         mycon.commit()  
+
+def modifybot():
+    print("The tables in our database are as follows : ")
+    executer("Show tables",True)
+    tbl=input("Enter the name of the table you want to modify structure: ")
+    bdr()
+    fldlist=[]
+    a=executer(f"describe {tbl}",False)
+    ans="y"
+    for i in range(0,len(a)):
+        mod=f'alter table {tbl} '
+        fldlist.append(a[i][0])
+    while ans[0].upper()=="Y":
+        mode=input("Enter the mode: \n(1) for adding field\n(2) for modifying field\n(3) for deleting field\n\nEnter Here : ")
+        bdr()
+        if mode=='1':
+            mod+=' add '
+            ask=input("Type (1) for adding constraint \n(2) for adding field\n\nEnter here : ")
+            bdr()
+            if ask=='1':
+                const=input("(1) for primary key\n(2) for unique\n(3) for foreign key\n(4) for not null\n(5) for check\nEnter here : ")
+                bdr()
+                for i in range(0,len(a)):
+                    print(a[i][0])
+                var=input("Enter the field name : ")
+                if const=='1':
+                    mod+='constraint '
+                    mod+=f' primary key ({var})'
+                    print(mod)
+                elif const=='2':
+                    mod+=f' unique ({var})'
+                    print(mod)
+                elif const=='3':
+                    mod+='constraint '
+                    mod+=f' foreign key {var}'
+                    print(mod)
+                elif const=='4':
+                    a=executer(f"SHOW COLUMNS FROM {tbl} LIKE '{var}'",False)
+                    for i in range(0,len(a)):
+                        print(a[i][1])
+                    mod=f'alter table {tbl} modify {var} {a[i][1]} not null'
+                    print(mod)
+                elif const=='5':
+                    mod+='constraint '
+                    val=input("Enter a value for default : ")
+                    mod+=f' default {var}'
+                    print(mod)
+
+            elif ask=='2':
+                print("The fields currently are : ")
+                pricount=0
+                for i in range(0,len(a)):
+                    print(a[i][0])
+                while ans[0].upper()=="Y":
+                    fldnm=input("Enter the field name : ")
+                    fldtyp=inputchart()
+                    iskey=" "
+                    if pricount==0:
+                        prikey=input("Do you want to make this a primary key? : ")
+                        if prikey[0].upper()=="Y":
+                            iskey="Primary key"
+                            pricount+=1
+                        else:
+                            unikey=input("Do you want to make it unique key? : ")
+                            if unikey[0].upper()=="Y":
+                                iskey="Unique"      
+                    else:
+                        unikey=input("Do you want to make it unique key? : ")
+                        if unikey[0].upper()=="Y":
+                            iskey="Unique"      
+                        else:
+                            iskey=" "
+                    info=f"{fldnm}  {fldtyp}    {iskey}"
+                    mod+=info
+                    print(mod)
+                    # executer(mod,False)
+                    ans=input("Do you want to continue? : ")
+                    if ans[0].upper()=='Y':
+                        mod=f'alter table {tbl} add '
+                bdr() 
+        
+        elif mode=='2':
+            mod+=' modify column '
+            print("The fields currently are : ")
+            pricount=0
+            for i in range(0,len(a)):
+                print(a[i][0])
+            while ans[0].upper()=="Y":
+                fldnm=input("Enter the field name you want to change: ")
+                fldtyp=inputchart()
+                if pricount==0:
+                    prikey=input("Do you want to make this a primary key? : ")
+                    if prikey[0].upper()=="Y":
+                        iskey="Primary key"
+                        pricount+=1
+                    else:
+                        unikey=input("Do you want to make it unique key? : ")
+                        if unikey[0].upper()=="Y":
+                            iskey="Unique"      
+                else:
+                    unikey=input("Do you want to make it unique key? : ")
+                    if unikey[0].upper()=="Y":
+                        iskey="Unique"      
+                    else:
+                        iskey=" "
+                info=f"{fldnm}  {fldtyp}    {iskey}"
+                mod+=info
+                ans=input("Do you want to continue? : ")
+                if ans[0].upper()=="Y":
+                    mod+=","
+                elif ans[0].upper()=="N":
+                    mod+=" "
+            print(mod)
+
+        elif mode=='3':
+            mod+=' drop '
+            while ans[0].upper()=="Y":
+                ask=input("Press(1) for deleting constraint and\nPress(2) for deleting field\nEnter here : ")
+                if ask=='1':
+                    a=executer(f"Describe {tbl}",True)
+                    qn=input('Enter the name of the field from which you want to delete constraint : ')
+                    const=input("Enter the constraint : ")
+                    if const.upper()=='PRIMARY KEY':
+                        mod=f'alter table {tbl} drop '
+                        mod+=f'{const}'
+                        print(mod)
+                    elif const.upper()=='UNIQUE':
+                        mod=f'alter table {tbl} drop '
+                        a=executer(f"show index from new where column_name='{qn}'",False)
+                        for i in range(0,len(a)):
+                            print(a[i][2])
+                            mod+=' index '+a[i][2]
+                        print(mod)
+                    elif const.upper()=='NOT NULL':
+                        a=executer(f"SHOW COLUMNS FROM {tbl} LIKE '{qn}'",False)
+                        for i in range(0,len(a)):
+                            print(a[i][1])
+                        mod=f'alter table {tbl} modify column {qn} {a[i][1]} null'
+                        print(mod)
+                    elif const.upper()=='DEFAULT':
+                        mod=f'alter table {tbl} alter column {qn} drop default'
+                        print(mod)
+                    else:
+                        print("Invalid Input!!")
+                    
+                elif ask=='2':
+                    mod+=' column '
+                    print("The fields currently are : ")
+                    for i in range(0,len(a)):
+                        print(a[i][1])
+                    mod+=input('Enter the name of the field you want to delete : ')
+                    print(mod)
+                else:
+                    print("Invalid Input!!")
+            
+                ans=input("Do you want to continue? : ")
+                if ans[0].upper()=='Y':
+                    mod=f'alter table {tbl} '
+
 def updatebot():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -108,6 +268,7 @@ def updatebot():
         print(upd)
         executer(upd,False)
         mycon.commit()  
+
 def tablecreator():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -128,13 +289,34 @@ def tablecreator():
             else:
                 unikey=input("Do you want to make it unique key? : ")
                 if unikey[0].upper()=="Y":
-                    iskey="Unique"      
+                    iskey="Unique"
+                else:
+                    notnullkey=input("Do you want to make it not null field? : ")
+                    if notnullkey[0].upper()=="Y":
+                        iskey="not null"
+                    else:
+                        defaultkey=input("Do you want to make it default field? : ")
+                        # value=input("Enter a value to put in default : ")
+                        
+                        # if defaultkey[0].upper()=="Y":
+                            # iskey="default"
+
         else:
             unikey=input("Do you want to make it unique key? : ")
             if unikey[0].upper()=="Y":
                 iskey="Unique"      
             else:
-                iskey=" "
+                notnullkey=input("Do you want to make it not null field? : ")
+                if notnullkey[0].upper()=="Y":
+                    iskey="not null"
+                else:
+                    defaultkey=input("Do you want to make it default field? : ")
+                    # value=input("Enter a value to put in default : ")
+                    
+                    if defaultkey[0].upper()=="Y":
+                        iskey="default"
+                    else:
+                        iskey=" "
         info=f"{fldnm}  {fldtyp}    {iskey}"
         data+=info
         ans=input("Do you want to continue? : ")
@@ -145,27 +327,32 @@ def tablecreator():
     executer(data,False)
     bdr()
     executer(f"describe {tbl}",True)
-            
 
 def searchbot():
     if isconnected():
-        print("The tables in our database are as follows : ")
-        executer("Show tables",True)
-        tbl=input("Enter the name of the table you want to search: ")
-        bdr()
-        print(f"The structure of the table '{tbl}' is :")
-        a=executer(f"describe {tbl}",False)
-        for i in range(0,len(a)):
-            print(a[i][0])
-        bdr()
-        fld=input("Enter the field you want to search : ")
-        data=input(f"Enter the {fld} of your search item : ")
-        executer(f"select * from {tbl} where {fld}={data}",True)
+        ans='y'
+        while ans[0].upper()=='Y':
+            print("The tables in our database are as follows : ")
+            executer("Show tables",True)
+            tbl=input("Enter the name of the table you want to search: ")
+            bdr()
+            print(f"The structure of the table '{tbl}' is :")
+            a=executer(f"describe {tbl}",False)
+            for i in range(0,len(a)):
+                print(a[i][0])
+            bdr()
+            fld=input("Enter the field you want to search : ")
+            data=input(f"Enter the {fld} of your search item : ")
+            executer(f"select * from {tbl} where {fld}={data}",True)
+            ans=input("Do you want to continue? : ")
+        else:
+            print("Thank You!!")
 
     else:
         print("The Database is not connected !!")
 
-# searchbot()
-# tablecreator()
-# feedbot()
-updatebot()
+# searchbot() d
+# tablecreator() d
+# feedbot() d
+# updatebot()
+# modifybot()
