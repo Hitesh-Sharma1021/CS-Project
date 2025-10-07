@@ -81,39 +81,43 @@ def modifybot():
         mod=f'alter table {tbl} '
         fldlist.append(a[i][0])
     while ans[0].upper()=="Y":
-        mode=input("Enter the mode: \n(1) for adding field\n(2) for modifying field\n(3) for deleting field\n\nEnter Here : ")
+        mode=input("Enter the mode: \n(1) for adding field and constraint\n(2) for modifying field\n(3) for deleting field\n\nEnter Here : ")
         bdr()
         if mode=='1':
-            mod+=' add '
+            mod=f'alter table {tbl} add '
             ask=input("Type (1) for adding constraint \n(2) for adding field\n\nEnter here : ")
             bdr()
             if ask=='1':
-                const=input("(1) for primary key\n(2) for unique\n(3) for foreign key\n(4) for not null\n(5) for check\nEnter here : ")
+                const=input("(1) for primary key\n(2) for unique\n(3) for foreign key\n(4) for not null\n(5) for default\nEnter here : ")
                 bdr()
                 for i in range(0,len(a)):
-                    print(a[i][0])
+                    print(f"{i+1}. {a[i][0]}")
                 var=input("Enter the field name : ")
                 if const=='1':
+                    # mod=alter table {tbl} add 
                     mod+='constraint '
+                    # mod=alter table {tbl} add constraint
                     mod+=f' primary key ({var})'
+                    # mod=alter table {tbl} add constraint primary key ({var})
                     print(mod)
                 elif const=='2':
                     mod+=f' unique ({var})'
                     print(mod)
                 elif const=='3':
-                    mod+='constraint '
                     mod+=f' foreign key {var}'
-                    print(mod)
+                    print("in progress")
                 elif const=='4':
-                    a=executer(f"SHOW COLUMNS FROM {tbl} LIKE '{var}'",False)
-                    for i in range(0,len(a)):
-                        print(a[i][1])
-                    mod=f'alter table {tbl} modify {var} {a[i][1]} not null'
+                    b=executer(f"SHOW COLUMNS FROM {tbl} LIKE '{var}'",False)
+                    for i in range(0,len(b)):
+                        print(b[i][1])
+                    mod=f'alter table {tbl} modify {var} {b[i][1]} not null'
                     print(mod)
                 elif const=='5':
-                    mod+='constraint '
+                    b=executer(f"SHOW COLUMNS FROM {tbl} LIKE '{var}'",False)
+                    for i in range(0,len(b)):
+                        vartype=b[i][1]                    
                     val=input("Enter a value for default : ")
-                    mod+=f' default {var}'
+                    mod=f'alter table {tbl} modify {var} {vartype} default {val}'
                     print(mod)
 
             elif ask=='2':
@@ -121,10 +125,10 @@ def modifybot():
                 pricount=0
                 for i in range(0,len(a)):
                     print(a[i][0])
+                ans='y'
                 while ans[0].upper()=="Y":
                     fldnm=input("Enter the field name : ")
                     fldtyp=inputchart()
-                    iskey=" "
                     if pricount==0:
                         prikey=input("Do you want to make this a primary key? : ")
                         if prikey[0].upper()=="Y":
@@ -133,15 +137,53 @@ def modifybot():
                         else:
                             unikey=input("Do you want to make it unique key? : ")
                             if unikey[0].upper()=="Y":
-                                iskey="Unique"      
+                                iskey="Unique"
+                            else:
+                                notnullkey=input("Do you want to make it not null field? : ")
+                                if notnullkey[0].upper()=="Y":
+                                    iskey="not null"
+                                else:
+                                    defaultkey=input("Do you want to make it default field? : ")                         
+                                    if defaultkey[0].upper()=="Y":
+                                        value=input("Enter a value to put in default : ")
+                                        if fldtyp[0].upper()=='I':
+                                            iskey=f"default {value}"
+                                        elif fldtyp[0].upper()=='V':
+                                            iskey=f"default '{value}'"
+                                        elif fldtyp[0].upper()=='D':
+                                            iskey=f"default '{value}'"
+                                        elif fldtyp[0].upper()=='F':
+                                            iskey=f"default {value}"  
+                                    else:
+                                        iskey=' '
+                                        
+
                     else:
                         unikey=input("Do you want to make it unique key? : ")
                         if unikey[0].upper()=="Y":
-                            iskey="Unique"      
+                            iskey="Unique"
                         else:
-                            iskey=" "
+                            notnullkey=input("Do you want to make it not null field? : ")
+                            if notnullkey[0].upper()=="Y":
+                                iskey="not null"
+                            else:
+                                defaultkey=input("Do you want to make it default field? : ")                         
+                                if defaultkey[0].upper()=="Y":
+                                    value=input("Enter a value to put in default : ")
+                                    if fldtyp[0].upper()=='I':
+                                        iskey=f"default {value}"
+                                    elif fldtyp[0].upper()=='V':
+                                        iskey=f"default '{value}'"
+                                    elif fldtyp[0].upper()=='D':
+                                        iskey=f"default '{value}'"
+                                    elif fldtyp[0].upper()=='F':
+                                        iskey=f"default {value}"  
+                                    else:
+                                        iskey=' '
+
                     info=f"{fldnm}  {fldtyp}    {iskey}"
                     mod+=info
+                    ans=input("Do you want to continue? : ")                    
                     print(mod)
                     # executer(mod,False)
                     ans=input("Do you want to continue? : ")
@@ -156,7 +198,8 @@ def modifybot():
             for i in range(0,len(a)):
                 print(a[i][0])
             while ans[0].upper()=="Y":
-                fldnm=input("Enter the field name you want to change: ")
+                fld=input("Enter the field name to modify : ")
+                fldnm=input("Enter the field name : ")
                 fldtyp=inputchart()
                 if pricount==0:
                     prikey=input("Do you want to make this a primary key? : ")
@@ -166,22 +209,49 @@ def modifybot():
                     else:
                         unikey=input("Do you want to make it unique key? : ")
                         if unikey[0].upper()=="Y":
-                            iskey="Unique"      
+                            iskey="Unique"
+                        else:
+                            notnullkey=input("Do you want to make it not null field? : ")
+                            if notnullkey[0].upper()=="Y":
+                                iskey="not null"
+                            else:
+                                defaultkey=input("Do you want to make it default field? : ")                         
+                                if defaultkey[0].upper()=="Y":
+                                    value=input("Enter a value to put in default : ")
+                                    if fldtyp[0].upper()=='I':
+                                        iskey=f"default {value}"
+                                    elif fldtyp[0].upper()=='V':
+                                        iskey=f"default '{value}'"
+                                    elif fldtyp[0].upper()=='D':
+                                        iskey=f"default '{value}'"
+                                    elif fldtyp[0].upper()=='F':
+                                        iskey=f"default {value}"  
+                                else:
+                                    iskey=' '
+                            
                 else:
                     unikey=input("Do you want to make it unique key? : ")
                     if unikey[0].upper()=="Y":
-                        iskey="Unique"      
+                        iskey="Unique"
                     else:
-                        iskey=" "
-                info=f"{fldnm}  {fldtyp}    {iskey}"
-                mod+=info
-                ans=input("Do you want to continue? : ")
-                if ans[0].upper()=="Y":
-                    mod+=","
-                elif ans[0].upper()=="N":
-                    mod+=" "
-            print(mod)
-
+                        notnullkey=input("Do you want to make it not null field? : ")
+                        if notnullkey[0].upper()=="Y":
+                            iskey="not null"
+                        else:
+                            defaultkey=input("Do you want to make it default field? : ")                         
+                            if defaultkey[0].upper()=="Y":
+                                value=input("Enter a value to put in default : ")
+                                if fldtyp[0].upper()=='I':
+                                    iskey=f"default {value}"
+                                elif fldtyp[0].upper()=='V':
+                                    iskey=f"default '{value}'"
+                                elif fldtyp[0].upper()=='D':
+                                    iskey=f"default '{value}'"
+                                elif fldtyp[0].upper()=='F':
+                                    iskey=f"default {value}"  
+                                else:
+                                    iskey=' '
+                
         elif mode=='3':
             mod+=' drop '
             while ans[0].upper()=="Y":
@@ -226,6 +296,8 @@ def modifybot():
                 ans=input("Do you want to continue? : ")
                 if ans[0].upper()=='Y':
                     mod=f'alter table {tbl} '
+    
+        ans=input("Do you want to continue? : ")
 
 def updatebot():
     print("The tables in our database are as follows : ")
@@ -295,28 +367,44 @@ def tablecreator():
                     if notnullkey[0].upper()=="Y":
                         iskey="not null"
                     else:
-                        defaultkey=input("Do you want to make it default field? : ")
-                        # value=input("Enter a value to put in default : ")
-                        
-                        # if defaultkey[0].upper()=="Y":
-                            # iskey="default"
+                        defaultkey=input("Do you want to make it default field? : ")                         
+                        if defaultkey[0].upper()=="Y":
+                            value=input("Enter a value to put in default : ")
+                            if fldtyp[0].upper()=='I':
+                                iskey=f"default {value}"
+                            elif fldtyp[0].upper()=='V':
+                                iskey=f"default '{value}'"
+                            elif fldtyp[0].upper()=='D':
+                                iskey=f"default '{value}'"
+                            elif fldtyp[0].upper()=='F':
+                                iskey=f"default {value}"  
+                        else:
+                            iskey=' '
+                            
 
         else:
             unikey=input("Do you want to make it unique key? : ")
             if unikey[0].upper()=="Y":
-                iskey="Unique"      
+                iskey="Unique"
             else:
                 notnullkey=input("Do you want to make it not null field? : ")
                 if notnullkey[0].upper()=="Y":
                     iskey="not null"
                 else:
-                    defaultkey=input("Do you want to make it default field? : ")
-                    # value=input("Enter a value to put in default : ")
-                    
+                    defaultkey=input("Do you want to make it default field? : ")                         
                     if defaultkey[0].upper()=="Y":
-                        iskey="default"
-                    else:
-                        iskey=" "
+                        value=input("Enter a value to put in default : ")
+                        if fldtyp[0].upper()=='I':
+                            iskey=f"default {value}"
+                        elif fldtyp[0].upper()=='V':
+                            iskey=f"default '{value}'"
+                        elif fldtyp[0].upper()=='D':
+                            iskey=f"default '{value}'"
+                        elif fldtyp[0].upper()=='F':
+                            iskey=f"default {value}"  
+                        else:
+                            iskey=' '
+
         info=f"{fldnm}  {fldtyp}    {iskey}"
         data+=info
         ans=input("Do you want to continue? : ")
@@ -351,8 +439,8 @@ def searchbot():
     else:
         print("The Database is not connected !!")
 
-# searchbot() d
-# tablecreator() d
-# feedbot() d
+# searchbot() 
+# tablecreator() 
+# feedbot() 
 # updatebot()
-# modifybot()
+modifybot()
