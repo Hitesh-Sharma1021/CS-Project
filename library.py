@@ -483,9 +483,22 @@ def reportbot():
     print(report)
     executer(report,True)
 
+def dropbot():
+    print("\n\n*** This is very dangerous mode.  Use it wisely ***\n")
+    print("The tables in our database are as follows : ")
+    executer("Show tables",True)
+    tbl=input("Enter the name of the table you want to delete : ")
+    ask=input("Do you really confirm to delete {tbl} completely ? : ")
+    if ask[0].upper()=='Y':
+        executer(f'drop table {tbl}',False)
+        print("Table {tbl} is successfully deleted.")
+    else:
+        print(f"The {tbl} is not deleted.")
+
 # searchbot() 
 # tablecreator() 
 # feedbot() 
 # updatebot()
 # modifybot()
-reportbot()
+# reportbot()
+dropbot()
