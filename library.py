@@ -42,7 +42,7 @@ def executer(command,inp):
     mycursor.execute(command)
     if inp==True:
         for x in mycursor:
-         print(x)
+            print(x)
     for x in mycursor:
         list1.append(x)
     return list1 
@@ -76,6 +76,7 @@ def modifybot():
     bdr()
     fldlist=[]
     a=executer(f"describe {tbl}",False)
+    # a=[("itno","int(4)","no","mul","no"," "),("itno","int(4)","no","mul","no"," ")]
     ans="y"
     for i in range(0,len(a)):
         mod=f'alter table {tbl} '
@@ -192,14 +193,14 @@ def modifybot():
                 bdr() 
         
         elif mode=='2':
-            mod+=' modify column '
+            mod+=' change column '
             print("The fields currently are : ")
             pricount=0
             for i in range(0,len(a)):
                 print(a[i][0])
             while ans[0].upper()=="Y":
                 fld=input("Enter the field name to modify : ")
-                fldnm=input("Enter the field name : ")
+                fldnm=input("Enter the new field name : ")
                 fldtyp=inputchart()
                 if pricount==0:
                     prikey=input("Do you want to make this a primary key? : ")
@@ -251,7 +252,16 @@ def modifybot():
                                     iskey=f"default {value}"  
                                 else:
                                     iskey=' '
-                
+                info=f"{fld} {fldnm}  {fldtyp}    {iskey}"
+                mod+=info
+                print(mod)
+                ans=input("Do you want to continue? : ")
+                if ans[0].upper()=="Y":
+                    mod=f'alter table {tbl} '
+                # executer(mod,False)
+                bdr()
+                # executer(f"describe {tbl}",True)
+                               
         elif mode=='3':
             mod+=' drop '
             while ans[0].upper()=="Y":
@@ -351,6 +361,7 @@ def tablecreator():
     iskey=" "
     data=f"create table {tbl} ("
     while ans[0].upper()=="Y":
+        iskey=" "
         fldnm=input("Enter the field name : ")
         fldtyp=inputchart()
         if pricount==0:
@@ -412,6 +423,7 @@ def tablecreator():
             data+=","
         elif ans[0].upper()=="N":
             data+=")"
+    print(data)
     executer(data,False)
     bdr()
     executer(f"describe {tbl}",True)
@@ -439,8 +451,41 @@ def searchbot():
     else:
         print("The Database is not connected !!")
 
+def reportbot():
+    print("The tables in our database are as follows : ")
+    executer("Show tables",True)
+    tbl=input("Enter the name of the table for a report : ")
+    bdr()
+    report=f'select * from {tbl} where '
+    a=executer(f"describe {tbl}",False)
+    ans='y'
+    fldlist=[]
+    for i in range(0,len(a)):
+        fldlist.append(a[i][0])
+    no=1
+    print("Press")    
+    for fldnm in fldlist:
+        print(f"{no}. {fldnm}")
+        no+=1
+    while ans[0].upper()=='Y':
+        print("Enter condition in format :\n\nField_name (Operators) Field_value\nFor eg: itno >= 100\nitname='name'\ndate='2020-08-08'\n")
+        userinp=input("Enter here : ")
+        report+=userinp
+        ans=input("Do you want to continue adding filter? : ")
+        if ans[0].upper()=='Y':
+            choose=input("Press\n(1) for 'OR'\n(2) for 'AND\nEnter Here : ")
+            if choose=='1':
+                report+=' or '
+            elif choose=='2':
+                report+=' and '
+            else:
+                print("Wrong Input!")
+    print(report)
+    executer(report,True)
+
 # searchbot() 
 # tablecreator() 
 # feedbot() 
 # updatebot()
-modifybot()
+# modifybot()
+reportbot()
