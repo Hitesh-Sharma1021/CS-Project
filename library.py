@@ -19,7 +19,7 @@ def inputchart():
     opt=int(input("Enter the option : "))
     if opt==1:
         ln=input("Enter the length of the field : ")
-        fldtyp=f"int({ln})"
+        fldtyp=f"bigint({ln})"
         return fldtyp
     elif opt==2:
         ln=input("Enter the length of the field : ")
@@ -54,17 +54,32 @@ def feedbot():
     bdr()
     ans="y"
     fldlist=[]
+    fldtyplist=[]
     a=executer(f"describe {tbl}",False)
     for i in range(0,len(a)):
         fldlist.append(a[i][0])
+    for i in range(0,len(a)):
+        fldtyplist.append(a[i][1])
     while ans[0].upper()=="Y":
         feed=f'insert into {tbl} values('
+        count=0
         for fldnm in fldlist:
             data=input(f"Enter the {fldnm} : ")
+            if fldtyplist[count][0].upper()=='B':
+                data=f"{data}"
+            elif fldtyplist[count][0].upper()=='V':
+                data=f"'{data}'"
+            elif fldtyplist[count][0].upper()=='D':
+                data=f"'{data}'"
+            elif fldtyplist[count][0].upper()=='F':
+                data=f"{data}"  
             feed+=data+','
+            count+=1
         feed=feed.rstrip(',')
         feed+=')'
-        ans=input("Do you want to continue?")    
+        print()
+        ans=input("Do you want to continue adding data ?")    
+        bdr()
         print(feed)
         executer(feed,False)
         mycon.commit()  
@@ -76,7 +91,6 @@ def modifybot():
     bdr()
     fldlist=[]
     a=executer(f"describe {tbl}",False)
-    # a=[("itno","int(4)","no","mul","no"," "),("itno","int(4)","no","mul","no"," ")]
     ans="y"
     for i in range(0,len(a)):
         mod=f'alter table {tbl} '
@@ -323,15 +337,30 @@ def updatebot():
         upd=f'update {tbl} set '
         for fldnm in fldlist:
             data=input(f"Enter the {fldnm} : ")
+            x=0
+            for i in a:
+                if a[x][0].upper()==f'{fldnm}'.upper():
+                    fldtyp=a[x][1]
+                x+=1
+            if fldtyp[0].upper()=='B':
+                data=f'{data}'
+            elif fldtyp[0].upper()=='V':
+                data=f'"{data}"'
+            elif fldtyp[0].upper()=='D':
+                data=f'"{data}"'
+            elif fldtyp[0].upper()=='F':
+                data=f'{data}'
             fdata=fldnm+'='+data
             upd+=fdata+' ,'
         upd=upd.rstrip(',')
+        bdr()
         print("You want to update the data where ... ")
         cond_ans="y"
         upd+='where '
         while cond_ans[0].upper()=="Y":
             for i in range(0,len(a)):
                 print(a[i][0])
+            bdr()
             fld=input("Enter the field you want to restrict (set condition) : ")
             fldval=input(f"Enter the {fld} of your row : ")
             upd+=f'{fld}={fldval} '
@@ -346,7 +375,9 @@ def updatebot():
                     upd+=' and '
                 else:
                     print("Wrong input!!")
-        ans=input("Do you want to continue?")    
+        bdr()
+        ans=input("Do you want to continue updating ?")    
+        bdr()
         print(upd)
         executer(upd,False)
         mycon.commit()  
@@ -381,7 +412,7 @@ def tablecreator():
                         defaultkey=input("Do you want to make it default field? : ")                         
                         if defaultkey[0].upper()=="Y":
                             value=input("Enter a value to put in default : ")
-                            if fldtyp[0].upper()=='I':
+                            if fldtyp[0].upper()=='B':
                                 iskey=f"default {value}"
                             elif fldtyp[0].upper()=='V':
                                 iskey=f"default '{value}'"
@@ -405,7 +436,7 @@ def tablecreator():
                     defaultkey=input("Do you want to make it default field? : ")                         
                     if defaultkey[0].upper()=="Y":
                         value=input("Enter a value to put in default : ")
-                        if fldtyp[0].upper()=='I':
+                        if fldtyp[0].upper()=='B':
                             iskey=f"default {value}"
                         elif fldtyp[0].upper()=='V':
                             iskey=f"default '{value}'"
@@ -418,7 +449,9 @@ def tablecreator():
 
         info=f"{fldnm}  {fldtyp}    {iskey}"
         data+=info
-        ans=input("Do you want to continue? : ")
+        print()
+        ans=input("Do you want to continue adding field? : ")
+        bdr()
         if ans[0].upper()=="Y":
             data+=","
         elif ans[0].upper()=="N":
@@ -439,10 +472,23 @@ def searchbot():
             print(f"The structure of the table '{tbl}' is :")
             a=executer(f"describe {tbl}",False)
             for i in range(0,len(a)):
-                print(a[i][0])
-            bdr()
+                print(a[i][0]) 
+            x=0
             fld=input("Enter the field you want to search : ")
-            data=input(f"Enter the {fld} of your search item : ")
+            for i in a:
+                if a[x][0].upper()==f'{fld}'.upper():
+                    fldtyp=a[x][1]
+                x+=1
+            data=input(f"Enter the {fld} of your search item : ") 
+            bdr()
+            if fldtyp[0].upper()=='B':
+                data=f'{data}'
+            elif fldtyp[0].upper()=='V':
+                data=f'"{data}"'
+            elif fldtyp[0].upper()=='D':
+                data=f'"{data}"'
+            elif fldtyp[0].upper()=='F':
+                data=f'{data}'  
             executer(f"select * from {tbl} where {fld}={data}",True)
             ans=input("Do you want to continue? : ")
         else:
@@ -495,10 +541,49 @@ def dropbot():
     else:
         print(f"The {tbl} is not deleted.")
 
-# searchbot() 
-# tablecreator() 
-# feedbot() 
-# updatebot()
-# modifybot()
-# reportbot()
-dropbot()
+try:
+    bdr()
+    print("Hello user !! Welcome to Database Management Program ")
+    bdr()
+    ask='n'
+    while ask[0].upper()=='N':
+        print("The functions that you can use are : \n1. Searching for a data\n2. Create a new table\n3. Feeding data in the Tables\n4. Update the old data\n5. Modify the structure of the table\n6. Create a Report\n7. Delete the existing table")
+        bdr()
+        fn=input("Enter the desired function here: ")
+        if fn =='1':
+            bdr()
+            print("*** Welcome to the searching module !! ***")
+            searchbot()
+        elif fn=='2':
+            bdr()
+            print("*** Welcome to the table creating module !! ***")
+            tablecreator()
+        elif fn=='3':
+            bdr()
+            print("*** Welcome to the data feeding module !! ***")
+            feedbot()
+        elif fn=='4':
+            bdr()
+            print("*** Welcome to the updating data module !! ***")
+            updatebot()
+        elif fn=='5':
+            bdr()
+            print("*** Welcome to the modifying table module !! ***")
+            modifybot()
+        elif fn=='6':
+            bdr()
+            print("*** Welcome to the report creating module !! ***")
+            reportbot()
+        elif fn=='7':
+            bdr()
+            print("*** Welcome to the deleting module !! ***")
+            dropbot()
+        else:
+            print("Oops, You Entered Wrong Input!!")
+        ask=input("Do you want to end the program ? : ")
+except Exception as e:
+    print("Oops an error occured.")
+    print(f"The error is : {e}")
+finally:
+    print("Thank you so much for using the program !! ")
+    print("Program is Over.")
