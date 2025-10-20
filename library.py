@@ -1,4 +1,5 @@
 import mysql.connector as sqltor
+from tabulate import tabulate
 # db=input("Enter name of the database : ")
 db="project"
 mycon=sqltor.connect(host="localhost",user="root",password="1021", database=db)
@@ -103,43 +104,47 @@ def modifybot():
             ask=input("Type (1) for adding constraint \n(2) for adding field\n\nEnter here : ")
             bdr()
             if ask=='1':
-                const=input("(1) for primary key\n(2) for unique\n(3) for foreign key\n(4) for not null\n(5) for default\nEnter here : ")
+                const=input("(1) for primary key\n(2) for unique\n(3) not null\n(4) for default\nEnter here : ")
                 bdr()
                 for i in range(0,len(a)):
                     print(f"{i+1}. {a[i][0]}")
+                bdr()
                 var=input("Enter the field name : ")
                 if const=='1':
-                    # mod=alter table {tbl} add 
                     mod+='constraint '
-                    # mod=alter table {tbl} add constraint
                     mod+=f' primary key ({var})'
-                    # mod=alter table {tbl} add constraint primary key ({var})
-                    print(mod)
                 elif const=='2':
                     mod+=f' unique ({var})'
-                    print(mod)
                 elif const=='3':
-                    mod+=f' foreign key {var}'
-                    print("in progress")
-                elif const=='4':
                     b=executer(f"SHOW COLUMNS FROM {tbl} LIKE '{var}'",False)
                     for i in range(0,len(b)):
                         print(b[i][1])
                     mod=f'alter table {tbl} modify {var} {b[i][1]} not null'
-                    print(mod)
-                elif const=='5':
+                elif const=='4':
                     b=executer(f"SHOW COLUMNS FROM {tbl} LIKE '{var}'",False)
                     for i in range(0,len(b)):
-                        vartype=b[i][1]                    
-                    val=input("Enter a value for default : ")
+                        vartype=b[i][1] 
+                        print(vartype)                   
+                    value=input("Enter a value to put in default : ")
+                    if vartype[0].upper()=='B':
+                        val=f"{value}"
+                    elif vartype[0].upper()=='V':
+                        val=f"'{value}'"
+                    elif vartype[0].upper()=='D':
+                        val=f"'{value}'"
+                    elif vartype[0].upper()=='F':
+                        val=f"{value}"  
                     mod=f'alter table {tbl} modify {var} {vartype} default {val}'
-                    print(mod)
+                print(mod)
+                executer(mod,False) 
 
             elif ask=='2':
+                a=executer(f"describe {tbl}",False)
                 print("The fields currently are : ")
                 pricount=0
+                iskey=' '
                 for i in range(0,len(a)):
-                    print(a[i][0])
+                    print(f"{i+1}. {a[i][0]}")
                 ans='y'
                 while ans[0].upper()=="Y":
                     fldnm=input("Enter the field name : ")
@@ -161,8 +166,9 @@ def modifybot():
                                     defaultkey=input("Do you want to make it default field? : ")                         
                                     if defaultkey[0].upper()=="Y":
                                         value=input("Enter a value to put in default : ")
-                                        if fldtyp[0].upper()=='I':
+                                        if fldtyp[0].upper()=='B':
                                             iskey=f"default {value}"
+                                            print(f"default {value}")
                                         elif fldtyp[0].upper()=='V':
                                             iskey=f"default '{value}'"
                                         elif fldtyp[0].upper()=='D':
@@ -185,7 +191,7 @@ def modifybot():
                                 defaultkey=input("Do you want to make it default field? : ")                         
                                 if defaultkey[0].upper()=="Y":
                                     value=input("Enter a value to put in default : ")
-                                    if fldtyp[0].upper()=='I':
+                                    if fldtyp[0].upper()=='B':
                                         iskey=f"default {value}"
                                     elif fldtyp[0].upper()=='V':
                                         iskey=f"default '{value}'"
@@ -196,12 +202,11 @@ def modifybot():
                                     else:
                                         iskey=' '
 
-                    info=f"{fldnm}  {fldtyp}    {iskey}"
+                    info=f"{fldnm}  {fldtyp}   "+iskey
                     mod+=info
-                    ans=input("Do you want to continue? : ")                    
                     print(mod)
-                    # executer(mod,False)
-                    ans=input("Do you want to continue? : ")
+                    executer(mod,False)
+                    ans=input("Do you want to continue adding mode ? : ")                    
                     if ans[0].upper()=='Y':
                         mod=f'alter table {tbl} add '
                 bdr() 
@@ -210,8 +215,9 @@ def modifybot():
             mod+=' change column '
             print("The fields currently are : ")
             pricount=0
+            iskey=''
             for i in range(0,len(a)):
-                print(a[i][0])
+                print(f"{i+1}. {a[i][0]}")
             while ans[0].upper()=="Y":
                 fld=input("Enter the field name to modify : ")
                 fldnm=input("Enter the new field name : ")
@@ -233,7 +239,7 @@ def modifybot():
                                 defaultkey=input("Do you want to make it default field? : ")                         
                                 if defaultkey[0].upper()=="Y":
                                     value=input("Enter a value to put in default : ")
-                                    if fldtyp[0].upper()=='I':
+                                    if fldtyp[0].upper()=='B':
                                         iskey=f"default {value}"
                                     elif fldtyp[0].upper()=='V':
                                         iskey=f"default '{value}'"
@@ -256,7 +262,7 @@ def modifybot():
                             defaultkey=input("Do you want to make it default field? : ")                         
                             if defaultkey[0].upper()=="Y":
                                 value=input("Enter a value to put in default : ")
-                                if fldtyp[0].upper()=='I':
+                                if fldtyp[0].upper()=='B':
                                     iskey=f"default {value}"
                                 elif fldtyp[0].upper()=='V':
                                     iskey=f"default '{value}'"
@@ -269,19 +275,23 @@ def modifybot():
                 info=f"{fld} {fldnm}  {fldtyp}    {iskey}"
                 mod+=info
                 print(mod)
-                ans=input("Do you want to continue? : ")
+                executer(mod,False)
+                mycon.commit()
+                ans=input("Do you want to continue modifying mode ? : ")
                 if ans[0].upper()=="Y":
-                    mod=f'alter table {tbl} '
-                # executer(mod,False)
+                    mod=f'alter table {tbl} change column '
                 bdr()
                 # executer(f"describe {tbl}",True)
                                
         elif mode=='3':
-            mod+=' drop '
             while ans[0].upper()=="Y":
+                mod+=' drop '
                 ask=input("Press(1) for deleting constraint and\nPress(2) for deleting field\nEnter here : ")
                 if ask=='1':
-                    a=executer(f"Describe {tbl}",True)
+                    print("The fields currently are : ")
+                    a=executer(f"Describe {tbl}",False)
+                    for i in range(0,len(a)):
+                        print(f"{i+1}. {a[i][0]}")
                     qn=input('Enter the name of the field from which you want to delete constraint : ')
                     const=input("Enter the constraint : ")
                     if const.upper()=='PRIMARY KEY':
@@ -290,7 +300,7 @@ def modifybot():
                         print(mod)
                     elif const.upper()=='UNIQUE':
                         mod=f'alter table {tbl} drop '
-                        a=executer(f"show index from new where column_name='{qn}'",False)
+                        a=executer(f"show index from {tbl} where column_name='{qn}'",False)
                         for i in range(0,len(a)):
                             print(a[i][2])
                             mod+=' index '+a[i][2]
@@ -306,22 +316,28 @@ def modifybot():
                         print(mod)
                     else:
                         print("Invalid Input!!")
-                    
+                    executer(mod,False)
                 elif ask=='2':
                     mod+=' column '
                     print("The fields currently are : ")
                     for i in range(0,len(a)):
-                        print(a[i][1])
-                    mod+=input('Enter the name of the field you want to delete : ')
-                    print(mod)
+                        print(f"{i+1}. {a[i][0]}")
+                    field=input('Enter the name of the field you want to delete : ')
+                    mod+=field
+                    ask=input(f"Are you sure you want to permanently remove {field} field ? ")
+                    if ask[0].upper()=="Y":
+                        print(mod)
+                        executer(mod,False)
+                    else:
+                        print(f"Field {field} is not deleted.")                      
                 else:
                     print("Invalid Input!!")
             
-                ans=input("Do you want to continue? : ")
+                ans=input("Do you want to continue deleting mode ? : ")
                 if ans[0].upper()=='Y':
                     mod=f'alter table {tbl} '
     
-        ans=input("Do you want to continue? : ")
+        ans=input("Do you want to continue ? : ")
 
 def updatebot():
     print("The tables in our database are as follows : ")
@@ -472,7 +488,7 @@ def searchbot():
             print(f"The structure of the table '{tbl}' is :")
             a=executer(f"describe {tbl}",False)
             for i in range(0,len(a)):
-                print(a[i][0]) 
+                print(f"{i+1}. {a[i][0]}") 
             x=0
             fld=input("Enter the field you want to search : ")
             for i in a:
@@ -516,6 +532,7 @@ def reportbot():
     while ans[0].upper()=='Y':
         print("Enter condition in format :\n\nField_name (Operators) Field_value\nFor eg: itno >= 100\nitname='name'\ndate='2020-08-08'\n")
         userinp=input("Enter here : ")
+
         report+=userinp
         ans=input("Do you want to continue adding filter? : ")
         if ans[0].upper()=='Y':
@@ -527,7 +544,8 @@ def reportbot():
             else:
                 print("Wrong Input!")
     print(report)
-    executer(report,True)
+    data=executer(report,False)
+    print(tabulate(data, headers=fldlist, tablefmt="simple_grid"))
 
 def dropbot():
     print("\n\n*** This is very dangerous mode.  Use it wisely ***\n")
@@ -541,15 +559,23 @@ def dropbot():
     else:
         print(f"The {tbl} is not deleted.")
 
+def describebot():
+    print("The tables in our database are as follows : ")
+    executer("Show tables",True)
+    tbl=input("Enter the name of the table you want to know about : ")
+    data=executer(f"Describe {tbl}",False)
+    headers = ["Field", "Type", "Null", "Key", "Default", "Extra"]
+    print(tabulate(data, headers=headers, tablefmt="fancy_grid"))
+
 try:
     bdr()
     print("Hello user !! Welcome to Database Management Program ")
     bdr()
     ask='n'
     while ask[0].upper()=='N':
-        print("The functions that you can use are : \n1. Searching for a data\n2. Create a new table\n3. Feeding data in the Tables\n4. Update the old data\n5. Modify the structure of the table\n6. Create a Report\n7. Delete the existing table")
+        print("The functions that you can use are : \n1. Searching for a data\n2. Create a new table\n3. Feeding data in the Tables\n4. Update the old data\n5. Modify the structure of the table\n6. Create a Report\n7. Delete the existing table\n8. To Know about a table")
         bdr()
-        fn=input("Enter the desired function here: ")
+        fn=input("Enter the desired function here(1-8): ")
         if fn =='1':
             bdr()
             print("*** Welcome to the searching module !! ***")
@@ -578,12 +604,20 @@ try:
             bdr()
             print("*** Welcome to the deleting module !! ***")
             dropbot()
+        elif fn=='8':
+            bdr()
+            print("*** Welcome to the describing module !! ***")
+            describebot()
         else:
+            bdr()
             print("Oops, You Entered Wrong Input!!")
         ask=input("Do you want to end the program ? : ")
+        bdr()
 except Exception as e:
+    bdr()
     print("Oops an error occured.")
     print(f"The error is : {e}")
 finally:
+    bdr()
     print("Thank you so much for using the program !! ")
     print("Program is Over.")
