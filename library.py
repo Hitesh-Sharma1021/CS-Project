@@ -567,13 +567,25 @@ def describebot():
     headers = ["Field", "Type", "Null", "Key", "Default", "Extra"]
     print(tabulate(data, headers=headers, tablefmt="fancy_grid"))
 
+def showtablebot():
+    print("The tables in our database are as follows : ")
+    executer("Show tables",True)
+    tbl=input("Enter the name of the table you see : ")
+    data=executer(f"Describe {tbl}",False)
+    values=executer(f"select * from {tbl}",False)
+    headers = []
+    for i in range(len(data)):
+        headers.append(data[i][0].capitalize())
+    print(tabulate(values, headers=headers, tablefmt="fancy_grid"))
+
+
 try:
     bdr()
     print("Hello user !! Welcome to Database Management Program ")
     bdr()
     ask='n'
     while ask[0].upper()=='N':
-        print("The functions that you can use are : \n1. Searching for a data\n2. Create a new table\n3. Feeding data in the Tables\n4. Update the old data\n5. Modify the structure of the table\n6. Create a Report\n7. Delete the existing table\n8. To Know about a table")
+        print("The functions that you can use are : \n1. Searching for a data\n2. Create a new table\n3. Feeding data in the Tables\n4. Update the old data\n5. Modify the structure of the table\n6. Create a Report\n7. Delete the existing table\n8. To Know about a table\n9. To view data of a table")
         bdr()
         fn=input("Enter the desired function here(1-8): ")
         if fn =='1':
@@ -608,6 +620,10 @@ try:
             bdr()
             print("*** Welcome to the describing module !! ***")
             describebot()
+        elif fn=='9':
+            bdr()
+            print("*** Welcome to the Viewing module !! ***")
+            showtablebot()
         else:
             bdr()
             print("Oops, You Entered Wrong Input!!")
