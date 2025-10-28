@@ -587,7 +587,7 @@ try:
     while ask[0].upper()=='N':
         print("The functions that you can use are : \n1. Searching for a data\n2. Create a new table\n3. Feeding data in the Tables\n4. Update the old data\n5. Modify the structure of the table\n6. Create a Report\n7. Delete the existing table\n8. To Know about a table\n9. To view data of a table")
         bdr()
-        fn=input("Enter the desired function here(1-8): ")
+        fn=input("Enter the desired function here(1-9): ")
         if fn =='1':
             bdr()
             print("*** Welcome to the searching module !! ***")
