@@ -1,20 +1,26 @@
 import mysql.connector as sqltor
+
+# It beautifies the output by creating a table
 from tabulate import tabulate
+
 # db=input("Enter name of the database : ")
 db="project"
 mycon=sqltor.connect(host="localhost",user="root",password="1021", database=db)
 
+# Adds Border between lines
 def bdr():
     print()
     print("_____________________")
     print()
 
+# Checks if the Database is connected
 def isconnected():
     if mycon.is_connected():
         return True
     else:
         return False
 
+# Used in Feedbot
 def inputchart():
     print("Field types Chart:\n1. For 'integer' enter 1\n2. For 'text' enter 2\n3. For 'date' enter 3\n4. For 'decimal values' enter 4")
     opt=int(input("Enter the option : "))
@@ -37,6 +43,7 @@ def inputchart():
     else:
         print("Invalid Input !!")    
 
+# Executes the SQL statement into database
 def executer(command,inp):
     list1=[]
     mycursor=mycon.cursor()
@@ -48,6 +55,7 @@ def executer(command,inp):
         list1.append(x)
     return list1 
 
+# Enters the Data in table 
 def feedbot():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -85,6 +93,7 @@ def feedbot():
         executer(feed,False)
         mycon.commit()  
 
+# Modifies the table 
 def modifybot():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -339,6 +348,7 @@ def modifybot():
     
         ans=input("Do you want to continue ? : ")
 
+# Updates the data in table
 def updatebot():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -398,6 +408,7 @@ def updatebot():
         executer(upd,False)
         mycon.commit()  
 
+# Creates Table
 def tablecreator():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -477,6 +488,7 @@ def tablecreator():
     bdr()
     executer(f"describe {tbl}",True)
 
+# Search Item from the table
 def searchbot():
     if isconnected():
         ans='y'
@@ -513,6 +525,7 @@ def searchbot():
     else:
         print("The Database is not connected !!")
 
+# Create the report from the data
 def reportbot():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -547,6 +560,7 @@ def reportbot():
     data=executer(report,False)
     print(tabulate(data, headers=fldlist, tablefmt="simple_grid"))
 
+# Deletes the table
 def dropbot():
     print("\n\n*** This is very dangerous mode.  Use it wisely ***\n")
     print("The tables in our database are as follows : ")
@@ -559,6 +573,7 @@ def dropbot():
     else:
         print(f"The {tbl} is not deleted.")
 
+# Describe the table
 def describebot():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -567,6 +582,7 @@ def describebot():
     headers = ["Field", "Type", "Null", "Key", "Default", "Extra"]
     print(tabulate(data, headers=headers, tablefmt="fancy_grid"))
 
+# Displays the data of table
 def showtablebot():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
@@ -578,7 +594,7 @@ def showtablebot():
         headers.append(data[i][0].capitalize())
     print(tabulate(values, headers=headers, tablefmt="fancy_grid"))
 
-
+# Handles Exception
 try:
     bdr()
     print("Hello user !! Welcome to Database Management Program ")
