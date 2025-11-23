@@ -20,7 +20,7 @@ def isconnected():
     else:
         return False
 
-# Used in Feedbot
+# Used in tablecreator
 def inputchart():
     print("Field types Chart:\n1. For 'integer' enter 1\n2. For 'text' enter 2\n3. For 'date' enter 3\n4. For 'decimal values' enter 4")
     opt=int(input("Enter the option : "))
@@ -359,10 +359,11 @@ def updatebot():
     a=executer(f"describe {tbl}",False)
     for i in range(0,len(a)):
         fldlist.append(a[i][0])
+    showtablebot()
     while ans[0].upper()=="Y":
         upd=f'update {tbl} set '
         for fldnm in fldlist:
-            data=input(f"Enter the {fldnm} : ")
+            data=input(f"Enter the new {fldnm} : ")
             x=0
             for i in a:
                 if a[x][0].upper()==f'{fldnm}'.upper():
@@ -566,10 +567,10 @@ def dropbot():
     print("The tables in our database are as follows : ")
     executer("Show tables",True)
     tbl=input("Enter the name of the table you want to delete : ")
-    ask=input("Do you really confirm to delete {tbl} completely ? : ")
+    ask=input(f"Do you really confirm to delete {tbl} completely ? : ")
     if ask[0].upper()=='Y':
         executer(f'drop table {tbl}',False)
-        print("Table {tbl} is successfully deleted.")
+        print(f"Table {tbl} is successfully deleted.")
     else:
         print(f"The {tbl} is not deleted.")
 
